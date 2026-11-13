@@ -29,7 +29,8 @@ Tell your coworkers the link. You can also send them straight to one thing by pa
 
 - `…/#/day/4/quiz` — Day 4 practice quiz
 - `…/#/day/6/guide` — Day 6 study guide
-- `…/#/exam/quiz` — the mixed 8-day practice exam (285 questions)
+- `…/#/midterm/quiz` — the mixed 4-day Midterm (144 questions)
+- `…/#/exam/quiz` — the mixed 8-day Final Exam (285 questions)
 
 ## What's inside
 
@@ -50,6 +51,12 @@ Days 1–8 (manual pages 5–9, 11–24, 29–33, 35–39, 41–43, 45–46). Da
 cards, gift cards, comps, tip declaration, Joe's To-Go, evaluations) was built from the
 worksheet photos and the matching manual lesson pages — it wasn't one of the original seven
 applets. Pass mark is 80%, the same as your worksheets.
+
+Two mixed tests sit under the day cards: **Midterm** (Days 1–4: 144 quiz qs, 100 flashcards,
+102 study points) and **Final Exam** (all 8 days). Both have the same Quiz / Cards / Guide
+tabs as any day. Question AND answer order reshuffle on every attempt — and every quiz,
+every day and both exams, has a **Shuffle Quiz** button to re-mix mid-sitting. Flashcards
+keep their **Shuffle Deck** button.
 
 ## Editing content
 

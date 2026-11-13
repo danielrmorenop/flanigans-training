@@ -53,7 +53,7 @@ console.log(`\n=== testing ${ENTRY} ===`);
 /* ---------- home ---------- */
 await navTo('#/');
 const cards = [...d.querySelectorAll('.day-card')];
-ok(cards.length === 9, `home shows 8 day cards + 1 exam card (found ${cards.length})`);
+ok(cards.length === 10, `home shows 8 day cards + midterm card + final exam card (found ${cards.length})`);
 ok(/Study\. Review\. Test yourself\./.test(d.querySelector('.hero')?.textContent || ''), 'home hero renders');
 let exp = '';
 nums.forEach(n => {
@@ -62,6 +62,7 @@ nums.forEach(n => {
   exp += `${c.quiz.length} quiz qs ${c.cards.length} flashcards ${c.study || study} study points `;
 });
 const homeText = d.querySelector('main').textContent;
+ok(/MIDTERM/.test(homeText) && /FINAL EXAM/.test(homeText), 'home has both MIDTERM and FINAL EXAM cards');
 nums.forEach(n => ok(homeText.includes(DAYS[n].title) && homeText.includes('DAY ' + n), `home card for Day ${n}: ${DAYS[n].title.slice(0, 28)}`));
 
 /* ---------- each day ---------- */
@@ -73,6 +74,7 @@ for (const n of nums) {
   // QUIZ: answer everything correctly
   await navTo(`#/day/${n}/quiz`);
   const orderA = [...d.querySelectorAll('[data-pick]')].map(o => o.textContent.trim().slice(0, 14)).join('|');
+  ok(!!d.querySelector('#q-shuffle'), `D${n} quiz has a Shuffle Quiz button`);
   ok(txt('#q-count') === `Question 1 of ${c.quiz.length}`, `D${n} quiz counter says 1 of ${c.quiz.length} (got "${txt('#q-count')}")`);
   const seenLetters = {};
   let firstOptLetter = null;
@@ -149,9 +151,29 @@ Object.entries(globalLetters).forEach(([k, v]) => {
   ok(pct >= 15 && pct <= 35, `letter ${k} carries ${pct.toFixed(1)}% of correct answers across all ${globalFourOpt} four-option questions`);
 });
 
+console.log('\n--- MIDTERM: Days 1–4 mixed');
+const mid = nums.filter(n => n <= 4);
+const midQuiz = mid.reduce((s, n) => s + DAYS[n].quiz.length, 0);
+const midCards = mid.reduce((s, n) => s + DAYS[n].cards.length, 0);
+const midStudy = mid.reduce((s, n) => s + DAYS[n].sheet.reduce((a, g) => a + g.items.length, 0), 0);
+await navTo('#/midterm/quiz');
+ok(txt('#q-count') === `Question 1 of ${midQuiz}`, `midterm quiz counter 1 of ${midQuiz} (got "${txt('#q-count')}")`);
+click(d.querySelector('#q-shuffle')); await wait(20);
+ok(txt('#q-count') === `Question 1 of ${midQuiz}`, 'Shuffle Quiz restarts the midterm at question 1');
+await navTo('#/midterm/cards');
+ok(txt('#c-count') === `Card 1 of ${midCards}`, `midterm flashcards aggregate Days 1–4: ${midCards} (got "${txt('#c-count')}")`);
+await navTo('#/midterm/guide');
+ok(d.querySelectorAll('.sheet-item').length === midStudy, `midterm study guide aggregates Days 1–4: ${midStudy} points (found ${d.querySelectorAll('.sheet-item').length})`);
+
 console.log('\n--- FINAL EXAM');
 await navTo('#/exam/quiz');
 ok(txt('#q-count') === `Question 1 of ${totalQuiz}`, `exam counter says 1 of ${totalQuiz} (got "${txt('#q-count')}")`);
+await navTo('#/exam/cards');
+const totalCards = nums.reduce((s, n) => s + DAYS[n].cards.length, 0);
+const totalStudy = nums.reduce((s, n) => s + DAYS[n].sheet.reduce((a, g) => a + g.items.length, 0), 0);
+ok(txt('#c-count') === `Card 1 of ${totalCards}`, `final exam flashcards aggregate every day: ${totalCards} (got "${txt('#c-count')}")`);
+await navTo('#/exam/guide');
+ok(d.querySelectorAll('.sheet-item').length === totalStudy, `final exam study guide aggregates: ${totalStudy} points (found ${d.querySelectorAll('.sheet-item').length})`);
 
 /* ---------- best score persistence ---------- */
 console.log('\n--- SCORE SAVE');

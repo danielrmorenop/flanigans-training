@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Flanigan's Training — 8-Day Study Hub</title>
-<meta name="description" content="Flanigan's server training study guides, flashcards and practice quizzes for Days 1–8. Works offline, no account, no internet needed once loaded.">
+<meta name="description" content="Flanigan's server training study guides, flashcards and practice quizzes for Days 1–8, plus a mixed Midterm (Days 1–4) and Final Exam. Works offline, no account, no internet needed once loaded.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f59e0b'/%3E%3Ctext x='16' y='23' font-family='Arial' font-size='19' font-weight='bold' text-anchor='middle' fill='%2306150c'%3EF%3C/text%3E%3C/svg%3E">
 <style>
 /* Flanigan's Training — 8-Day Study Hub
@@ -7172,6 +7172,35 @@ window.FLANIGANS_DAYS[8] = {
   var DAY_NUMS = Object.keys(DAYS).map(Number).sort(function (a, b) { return a - b; });
   var PASS = 80;
 
+  /* mixed tests: midterm covers days 1–4, final covers everything */
+  var EXAM_IDS = { exam: 1, midterm: 1 };
+  function examDays(id) {
+    return id === 'midterm' ? DAY_NUMS.filter(function (n) { return n <= 4; }) : DAY_NUMS.slice();
+  }
+  function examBank(id) {
+    var all = [];
+    examDays(id).forEach(function (n) {
+      (DAYS[n].quiz || []).forEach(function (q) {
+        all.push({ cat: 'Day ' + n + ' — ' + q.cat, q: q.q, opts: q.opts, ans: q.ans, exp: q.exp });
+      });
+    });
+    return all;
+  }
+  function cardsList(id) {
+    if (!EXAM_IDS[id]) return (DAYS[id] && DAYS[id].cards) || [];
+    var out = [];
+    examDays(id).forEach(function (n) { out.push.apply(out, DAYS[n].cards || []); });
+    return out;
+  }
+  function sheetList(id) {
+    if (!EXAM_IDS[id]) return (DAYS[id] && DAYS[id].sheet) || [];
+    var out = [];
+    examDays(id).forEach(function (n) {
+      (DAYS[n].sheet || []).forEach(function (g) { out.push({ group: 'Day ' + n + ' — ' + g.group, items: g.items }); });
+    });
+    return out;
+  }
+
   var view = document.getElementById('view');
   var nav = document.getElementById('nav');
   var brandTitle = document.getElementById('brand-title');
@@ -7214,25 +7243,20 @@ window.FLANIGANS_DAYS[8] = {
   function saveBest(id, pct) { var b = bestOf(id); if (b === null || pct > b) store(bestKey(id), pct); }
 
   function counts(id) {
+    if (EXAM_IDS[id]) { var t = { quiz: 0, cards: 0, study: 0 }; examDays(id).forEach(function (n) { var c = counts(n); t.quiz += c.quiz; t.cards += c.cards; t.study += c.study; }); return t; }
     var d = DAYS[id]; if (!d) return null;
     var study = 0;
     (d.sheet || []).forEach(function (g) { study += (g.items || []).length; });
     return { quiz: (d.quiz || []).length, cards: (d.cards || []).length, study: study };
   }
+  /* mixed tests: Midterm = Days 1–4, Final = every day */
   function labelOf(id) {
     if (id === 'exam') return { num: 'FINAL', title: 'Final Practice Exam', pages: 'All 8 days mixed', blurb: 'Everything from Day 1 through Day 8 in one shuffled test' };
+    if (id === 'midterm') return { num: 'MIDTERM', title: 'Midterm Practice Exam', pages: 'Days 1–4 mixed', blurb: 'Everything from Day 1 through Day 4 in one shuffled test' };
     return DAYS[id];
   }
   function bankFor(id) {
-    if (id === 'exam') {
-      var all = [];
-      DAY_NUMS.forEach(function (n) {
-        (DAYS[n].quiz || []).forEach(function (q) {
-          all.push({ cat: 'Day ' + n + ' — ' + q.cat, q: q.q, opts: q.opts, ans: q.ans, exp: q.exp });
-        });
-      });
-      return all;
-    }
+    if (EXAM_IDS[id]) return examBank(id);
     return (DAYS[id] && DAYS[id].quiz) || [];
   }
 
@@ -7251,24 +7275,24 @@ window.FLANIGANS_DAYS[8] = {
     var m = h.match(/^day\/(\d+)\/(quiz|cards|guide)/);
     if (m) { var n = Number(m[1]); if (DAYS[n]) { route = { id: n, tab: m[2] }; return; } }
     if (h === 'day' ) { route = { id: null, tab: 'home' }; return; }
-    if (h === 'exam/quiz') { route = { id: 'exam', tab: 'quiz' }; return; }
-    if (h === 'exam') { route = { id: 'exam', tab: 'quiz' }; return; }
+    var m2 = h.match(/^(exam|midterm)(?:\/(quiz|cards|guide))?$/);
+    if (m2) { route = { id: m2[1], tab: m2[2] || 'quiz' }; return; }
     route = { id: null, tab: 'home' };
   }
 
-  function openDay(id, tab) { go('#/day/' + id + '/' + (tab || 'quiz')); }
+  function openDay(id, tab) { go('#/' + (typeof id === 'string' ? id : 'day/' + id) + '/' + (tab || 'quiz')); }
   function home() { go('#/'); }
 
   /* ---------------- header + nav ---------------- */
   function paintChrome() {
     var lab = labelOf(route.id);
     brandTitle.textContent = 'FLANIGAN’S';
-    if (lab) brandSub.textContent = (route.id === 'exam' ? '' : 'Day ' + route.id + ' — ') + lab.title;
+    if (lab) brandSub.textContent = (EXAM_IDS[route.id] ? '' : 'Day ' + route.id + ' — ') + lab.title;
     else brandSub.textContent = '8-Day Training Study Hub';
 
     var tabs = route.id
       ? [['Home', I.home, null], ['Quiz', I.quiz, 'quiz'], ['Cards', I.cards, 'cards'], ['Guide', I.guide, 'guide']]
-      : [['Home', I.home, null], ['Final Exam', I.star, 'exam']];
+      : [['Home', I.home, null], ['Midterm', I.star, 'midterm'], ['Final Exam', I.star, 'exam']];
 
     nav.innerHTML = tabs.map(function (t) {
       var label = t[0], icon = t[1], tab = t[2];
@@ -7281,7 +7305,7 @@ window.FLANIGANS_DAYS[8] = {
       b.addEventListener('click', function () {
         var t = b.getAttribute('data-nav');
         if (t === 'home') home();
-        else if (t === 'exam') go('#/exam/quiz');
+        else if (t === 'exam' || t === 'midterm') go('#/' + t + '/quiz');
         else openDay(route.id, t);
       });
     });
@@ -7312,6 +7336,7 @@ window.FLANIGANS_DAYS[8] = {
     }).join('');
 
     var examBest = bestOf('exam');
+    var midBest = bestOf('midterm'), mc = counts('midterm');
     view.innerHTML =
       '<section class="hero">' +
         '<h2>Study. Review. Test yourself.</h2>' +
@@ -7322,10 +7347,20 @@ window.FLANIGANS_DAYS[8] = {
         '<p class="panel-title">Training Days</p>' +
         '<div class="day-grid">' +
           cardsHtml +
+          '<button class="day-card exam-card" data-open="midterm">' +
+            '<span class="day-num">MIDTERM</span>' +
+            '<h3>Days 1 – 4 Mixed</h3>' +
+            '<div class="pages">Midterm • Days 1 – 4</div>' +
+            '<div class="blurb">' + esc(labelOf('midterm').blurb) + '</div>' +
+            '<div class="counts"><span class="count-chip">' + mc.quiz + ' quiz qs</span></div>' +
+            '<div class="best' + (midBest === null ? ' no' : '') + '">' +
+              (midBest === null ? 'No practice score yet' : 'Best practice score: ' + midBest + '%') +
+            '</div>' +
+          '</button>' +
           '<button class="day-card exam-card" data-open="exam">' +
             '<span class="day-num">FINAL EXAM</span>' +
             '<h3>All 8 Days Mixed</h3>' +
-            '<div class="pages">Days 1 – 8</div>' +
+            '<div class="pages">Final • Days 1 – 8</div>' +
             '<div class="blurb">' + esc(labelOf('exam').blurb) + '</div>' +
             '<div class="counts"><span class="count-chip">' + totalQ + ' quiz qs</span></div>' +
             '<div class="best' + (examBest === null ? ' no' : '') + '">' +
@@ -7340,7 +7375,7 @@ window.FLANIGANS_DAYS[8] = {
     Array.prototype.forEach.call(view.querySelectorAll('[data-open]'), function (el) {
       el.addEventListener('click', function () {
         var v = el.getAttribute('data-open');
-        if (v === 'exam') go('#/exam/quiz'); else openDay(Number(v), 'quiz');
+        if (EXAM_IDS[v]) go('#/' + v + '/quiz'); else openDay(Number(v), 'quiz');
       });
     });
   }
@@ -7349,7 +7384,7 @@ window.FLANIGANS_DAYS[8] = {
   function stripHtml(id) {
     var d = labelOf(id), c = counts(id);
     return '<div class="day-strip">' +
-      '<span class="num">' + (id === 'exam' ? 'FINAL' : 'DAY ' + id) + '</span>' +
+      '<span class="num">' + (id === 'exam' ? 'FINAL' : id === 'midterm' ? 'MIDTERM' : 'DAY ' + id) + '</span>' +
       '<div class="t"><h2>' + esc(d.title) + '</h2>' +
       '<div class="pages">' + esc(d.pages) + (c ? ' • ' + c.quiz + ' quiz qs • ' + c.cards + ' cards • ' + c.study + ' study points' : '') + '</div>' +
       '</div></div>';
@@ -7400,9 +7435,12 @@ window.FLANIGANS_DAYS[8] = {
         '<div class="feedback" id="q-fb"></div>' +
         '<div class="btn-row">' +
           '<button class="btn ghost" id="q-quit">Back to Home</button>' +
+          (quiz.mode === 'quiz' ? '<button class="btn ghost" id="q-shuffle">' + svg(I.shuffle) + ' Shuffle Quiz</button>' : '') +
           '<button class="btn" id="q-next" disabled>' + (quiz.i + 1 === total ? 'See Results' : 'Next Question') + '</button>' +
         '</div>' +
-        (quiz.mode === 'review' ? '<p class="hint">Review mode: these are the ones you missed. This round does not change your best score.</p>' : '') +
+        (quiz.mode === 'review'
+          ? '<p class="hint">Review mode: these are the ones you missed. This round does not change your best score.</p>'
+          : '<p class="hint">Question and answer order shuffle every attempt — and Shuffle Quiz mixes them again mid-quiz.</p>') +
       '</div>';
 
     document.getElementById('q-bar').style.width = Math.round((quiz.i / total) * 100) + '%';
@@ -7418,6 +7456,7 @@ window.FLANIGANS_DAYS[8] = {
 
   function wireQuiz() {
     var quit = document.getElementById('q-quit'); if (quit) quit.addEventListener('click', home);
+    var sh = document.getElementById('q-shuffle'); if (sh) sh.addEventListener('click', function () { newQuiz(quiz.id); renderQuiz(); window.scrollTo(0, 0); });
     var next = document.getElementById('q-next'); if (next) next.addEventListener('click', function () { quiz.i++; renderQuiz(); window.scrollTo(0, 0); });
 
     Array.prototype.forEach.call(view.querySelectorAll('[data-pick]'), function (btn) {
@@ -7497,10 +7536,10 @@ window.FLANIGANS_DAYS[8] = {
 
   /* ---------------- FLASHCARDS ---------------- */
   function renderCards() {
-    var id = route.id, list = (DAYS[id] && DAYS[id].cards) || [];
+    var id = route.id, list = cardsList(id);
     if (!cards || cards.id !== id) cards = { id: id, order: list.map(function (_, i) { return i; }), i: 0, flipped: false };
     var n = cards.order.length;
-    if (!n) { view.innerHTML = stripHtml(id) + '<div class="panel">No flashcards for this day yet.</div>'; return; }
+    if (!n) { view.innerHTML = stripHtml(id) + '<div class="panel">' + (EXAM_IDS[id] ? 'No flashcards for these days yet.' : 'No flashcards for this day yet.') + '</div>'; return; }
     if (cards.i >= n) cards.i = n - 1;
 
     var c = list[cards.order[cards.i]];
@@ -7543,12 +7582,13 @@ window.FLANIGANS_DAYS[8] = {
     cards.i = next; cards.flipped = false; renderCards();
   }
   function printCards() {
-    var list = DAYS[route.id].cards || [];
+    var list = cardsList(route.id);
+    var what = typeof route.id === 'number' ? 'Day ' + route.id : labelOf(route.id).title;
     var w = window.open('', '_blank');
     if (!w) { alert('Your browser blocked the print window.'); return; }
-    w.document.write('<!DOCTYPE html><html><head><title>Flanigan’s Day ' + route.id + ' flashcards</title>' +
+    w.document.write('<!DOCTYPE html><html><head><title>Flanigan’s ' + esc(what) + ' flashcards</title>' +
       '<style>body{font-family:Arial,Helvetica,sans-serif;padding:14px;color:#111}h4{margin:0 0 4px}.tag{color:#553300;font-size:11px;font-weight:bold;text-transform:uppercase}p{margin:3px 0;font-size:13px}.c{border:1px solid #bbb;border-radius:8px;padding:10px;margin-bottom:10px;page-break-inside:avoid}strong{color:#553300}</style></head><body>' +
-      '<h3>Flanigan’s Day ' + route.id + ' — flashcards (' + list.length + ')</h3>' +
+      '<h3>Flanigan’s ' + esc(what) + ' — flashcards (' + list.length + ')</h3>' +
       list.map(function (c) {
         return '<div class="c"><div class="tag">' + esc(c.cat) + '</div><h4>' + esc(c.title) + '</h4>' + c.body + '</div>';
       }).join('') + '</body></html>');
@@ -7558,7 +7598,7 @@ window.FLANIGANS_DAYS[8] = {
 
   /* ---------------- STUDY GUIDE ---------------- */
   function renderGuide() {
-    var id = route.id, groups = (DAYS[id] && DAYS[id].sheet) || [];
+    var id = route.id, groups = sheetList(id);
     if (!guide || guide.id !== id) guide = { id: id, filter: '' };
     var f = guide.filter.trim().toLowerCase();
 
@@ -7591,8 +7631,8 @@ window.FLANIGANS_DAYS[8] = {
     view.innerHTML = stripHtml(id) +
       '<div class="panel">' +
         '<p class="panel-title">Study Guide — ' + totalStudy + ' points' + (f ? ' • showing ' + shown : '') + '</p>' +
-        '<input class="search" id="g-search" type="text" placeholder="Search this day: dish names, portions, rules…" value="' + esc(guide.filter) + '">' +
-        (shown ? body : '<p class="no-hits">Nothing on this day matches “' + esc(guide.filter) + '”. Try the day before or after — each day only holds its own manual pages.</p>') +
+        '<input class="search" id="g-search" type="text" placeholder="Search ' + (EXAM_IDS[id] ? 'these days' : 'this day') + ': dish names, portions, rules…" value="' + esc(guide.filter) + '">' +
+        (shown ? body : '<p class="no-hits">Nothing ' + (EXAM_IDS[id] ? 'in these days' : 'on this day') + ' matches “' + esc(guide.filter) + '”.</p>') +
       '</div>' +
       '<div class="btn-row"><button class="btn ghost" id="g-print">' + svg(I.print) + ' Print this study guide</button></div>';
 
