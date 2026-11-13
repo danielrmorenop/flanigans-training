@@ -7175,7 +7175,7 @@ window.FLANIGANS_DAYS[8] = {
   /* mixed tests: midterm covers days 1–4, final covers everything.
      each attempt draws EXAM_QS questions at random, spread fairly across the days */
   var EXAM_IDS = { exam: 1, midterm: 1 };
-  var EXAM_QS = { midterm: 50, exam: 60 };
+  var EXAM_QS = { midterm: 30, exam: 60 };
   function examDays(id) {
     return id === 'midterm' ? DAY_NUMS.filter(function (n) { return n <= 4; }) : DAY_NUMS.slice();
   }

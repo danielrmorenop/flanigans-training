@@ -29,7 +29,7 @@ Tell your coworkers the link. You can also send them straight to one thing by pa
 
 - `…/#/day/4/quiz` — Day 4 practice quiz
 - `…/#/day/6/guide` — Day 6 study guide
-- `…/#/midterm/quiz` — the Midterm: 50 random qs drawn from Days 1–4
+- `…/#/midterm/quiz` — the Midterm: 30 random qs drawn from Days 1–4
 - `…/#/exam/quiz` — the Final Exam: 60 random qs drawn from all 8 days
 
 ## What's inside
@@ -54,7 +54,7 @@ applets. Pass mark is 80%, the same as your worksheets.
 
 Two mixed tests sit under the day cards: **Midterm** (Days 1–4 pool: 144 quiz qs, 100
 flashcards, 102 study points) and **Final Exam** (all 8 days). Both have the same
-Quiz / Cards / Guide tabs as any day. **Each exam sitting draws a fresh random set — 50
+Quiz / Cards / Guide tabs as any day. **Each exam sitting draws a fresh random set — 30
 questions for the Midterm, 60 for the Final** — spread fairly across the days, so nobody
 sits a 144- or 285-question marathon and retaking feels like a new test. Change the draw
 size in `app.js` on the `EXAM_QS` line. Question AND answer order reshuffle on every

@@ -156,7 +156,7 @@ const mid = nums.filter(n => n <= 4);
 const midQuiz = mid.reduce((s, n) => s + DAYS[n].quiz.length, 0);
 const midCards = mid.reduce((s, n) => s + DAYS[n].cards.length, 0);
 const midStudy = mid.reduce((s, n) => s + DAYS[n].sheet.reduce((a, g) => a + g.items.length, 0), 0);
-const MIDTERM_N = 50, FINAL_N = 60; // keep in sync with EXAM_QS in app.js
+const MIDTERM_N = 30, FINAL_N = 60; // keep in sync with EXAM_QS in app.js
 const midDraw = Math.min(MIDTERM_N, midQuiz);
 const qDayMid = new Map(), qDayAll = new Map();
 mid.forEach(n => DAYS[n].quiz.forEach(q => qDayMid.set(q.q, n)));
