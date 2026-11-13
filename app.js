@@ -1,5 +1,5 @@
-/* Flanigan's Training — 7-Day Study Hub
-   app.js : the engine. Nothing here is day-specific; all content lives in data/day1.js … day7.js
+/* Flanigan's Training — 8-Day Study Hub
+   app.js : the engine. Nothing here is day-specific; all content lives in data/day1.js … day8.js
    Nothing is uploaded anywhere: scores are saved on this device only. */
 (function () {
   'use strict';
@@ -56,7 +56,7 @@
     return { quiz: (d.quiz || []).length, cards: (d.cards || []).length, study: study };
   }
   function labelOf(id) {
-    if (id === 'exam') return { num: 'FINAL', title: 'Final Practice Exam', pages: 'All 7 days mixed', blurb: 'Everything from Day 1 through Day 7 in one shuffled test' };
+    if (id === 'exam') return { num: 'FINAL', title: 'Final Practice Exam', pages: 'All 8 days mixed', blurb: 'Everything from Day 1 through Day 8 in one shuffled test' };
     return DAYS[id];
   }
   function bankFor(id) {
@@ -100,7 +100,7 @@
     var lab = labelOf(route.id);
     brandTitle.textContent = 'FLANIGAN’S';
     if (lab) brandSub.textContent = (route.id === 'exam' ? '' : 'Day ' + route.id + ' — ') + lab.title;
-    else brandSub.textContent = '7-Day Training Study Hub';
+    else brandSub.textContent = '8-Day Training Study Hub';
 
     var tabs = route.id
       ? [['Home', I.home, null], ['Quiz', I.quiz, 'quiz'], ['Cards', I.cards, 'cards'], ['Guide', I.guide, 'guide']]
@@ -160,8 +160,8 @@
           cardsHtml +
           '<button class="day-card exam-card" data-open="exam">' +
             '<span class="day-num">FINAL EXAM</span>' +
-            '<h3>All 7 Days Mixed</h3>' +
-            '<div class="pages">Days 1 – 7</div>' +
+            '<h3>All 8 Days Mixed</h3>' +
+            '<div class="pages">Days 1 – 8</div>' +
             '<div class="blurb">' + esc(labelOf('exam').blurb) + '</div>' +
             '<div class="counts"><span class="count-chip">' + totalQ + ' quiz qs</span></div>' +
             '<div class="best' + (examBest === null ? ' no' : '') + '">' +
@@ -171,7 +171,7 @@
         '</div>' +
       '</div>' +
       '<p class="hint">Everything on this site comes straight from the Flanigan’s training manual pages listed on each day card (' +
-        totalQ + ' practice questions, ' + totalC + ' flashcards, ' + totalS + ' study points across 7 days).</p>';
+        totalQ + ' practice questions, ' + totalC + ' flashcards, ' + totalS + ' study points across ' + DAY_NUMS.length + ' days).</p>';
 
     Array.prototype.forEach.call(view.querySelectorAll('[data-open]'), function (el) {
       el.addEventListener('click', function () {

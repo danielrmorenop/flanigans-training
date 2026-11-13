@@ -1,5 +1,5 @@
-/* Flanigan's Training — 7-Day Study Hub
-   One theme for all seven days. Dark green + gold, matches the original day files. */
+/* Flanigan's Training — 8-Day Study Hub
+   One theme for all eight days. Dark green + gold, matches the original day files. */
 
 :root {
   --bg: #07190f;
@@ -343,6 +343,24 @@ main { max-width: 700px; margin: 0 auto; }
   .flashcard .face-tag { background: #eee; color: #111; }
   .flashcard .body strong { color: #553300; }
   .day-card, .hero { background: #fff; border-color: #bbb; color: #111; }
+}
+
+/* ---------- desktop: wider, more columns, fewer rows (mobile stays exactly as it was) ---------- */
+@media (min-width: 900px) {
+  body { padding: 22px 20px 110px; }
+  main, .top, .bottom-nav { max-width: 960px; }
+  .day-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .day-card { padding: 16px; }
+  .flashcard { max-width: 780px; margin: 0 auto; min-height: 280px; }
+  .sheet-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+  .sheet-group > h3 { grid-column: 1 / -1; margin-bottom: 2px; }
+  .sheet-item { margin-bottom: 0; height: 100%; }
+  .bottom-nav { border-left: 1px solid var(--card-border); border-right: 1px solid var(--card-border); border-radius: 14px 14px 0 0; }
+}
+
+@media (min-width: 1200px) {
+  main, .top, .bottom-nav { max-width: 1100px; }
+  .day-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 @media (max-width: 460px) {

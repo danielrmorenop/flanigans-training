@@ -53,7 +53,7 @@ console.log(`\n=== testing ${ENTRY} ===`);
 /* ---------- home ---------- */
 await navTo('#/');
 const cards = [...d.querySelectorAll('.day-card')];
-ok(cards.length === 8, `home shows 7 day cards + 1 exam card (found ${cards.length})`);
+ok(cards.length === 9, `home shows 8 day cards + 1 exam card (found ${cards.length})`);
 ok(/Study\. Review\. Test yourself\./.test(d.querySelector('.hero')?.textContent || ''), 'home hero renders');
 let exp = '';
 nums.forEach(n => {
@@ -143,7 +143,7 @@ for (const n of nums) {
 
 /* ---------- final exam ---------- */
 console.log('\n--- ANSWER POSITION BALANCE');
-ok(reshuffled >= 6, `answer positions move on a retake (${reshuffled} of 7 days re-shuffled question 1; expect ~7, 1-in-24 coincidences allowed)`);
+ok(reshuffled >= 7, `answer positions move on a retake (${reshuffled} of 8 days re-shuffled question 1; expect ~8, 1-in-24 coincidences allowed)`);
 Object.entries(globalLetters).forEach(([k, v]) => {
   const pct = (100 * v / globalFourOpt);
   ok(pct >= 15 && pct <= 35, `letter ${k} carries ${pct.toFixed(1)}% of correct answers across all ${globalFourOpt} four-option questions`);

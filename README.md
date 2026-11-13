@@ -1,4 +1,4 @@
-# Flanigan's Training — 7-Day Study Hub
+# Flanigan's Training — 8-Day Study Hub
 
 One site instead of seven files and a stack of paper quizzes. Dark green + gold,
 bottom icon nav, same three tabs on every day: **Quiz · Cards · Guide**.
@@ -7,7 +7,7 @@ Two ways to use it, both included:
 
 | Version | What it is | Best for |
 |---|---|---|
-| `index.html` + `styles.css` + `app.js` + `data/day1.js…day7.js` | the normal folder version — this is the one to edit | hosting on GitHub Pages, easy content edits |
+| `index.html` + `styles.css` + `app.js` + `data/day1.js…day8.js` | the normal folder version — this is the one to edit | hosting on GitHub Pages, easy content edits |
 | `Flanigans-Study-Hub-ONE-FILE.html` | the whole site in one file (auto-generated) | texting/airdropping to a coworker, opening off a USB stick, offline |
 
 No internet is needed once the page is open, and no account, no sign-in, nothing is
@@ -29,15 +29,15 @@ Tell your coworkers the link. You can also send them straight to one thing by pa
 
 - `…/#/day/4/quiz` — Day 4 practice quiz
 - `…/#/day/6/guide` — Day 6 study guide
-- `…/#/exam/quiz` — the mixed 7-day practice exam (245 questions)
+- `…/#/exam/quiz` — the mixed 8-day practice exam (285 questions)
 
 ## What's inside
 
 ```
 index.html                      the page (home + day screens)
-styles.css                      one theme for all 7 days
+styles.css                      one theme for all 8 days
 app.js                          the engine: quiz, flashcards, study guide, scores
-data/day1.js … day7.js          content only — this is what you edit
+data/day1.js … day8.js          content only — this is what you edit
 Flanigans-Study-Hub-ONE-FILE.html  generated single-file copy
 tools/convert.mjs               one-time migration from the original 7 HTML files (already run)
 tools/build.mjs                 regenerates the ONE-FILE version after a content change
@@ -45,9 +45,11 @@ tools/check.mjs                 optional self-test (see "Re-check the whole site
 README.md                       this file
 ```
 
-Content right now: **245 practice questions, 144 flashcards, 156 study points** across
-Days 1–7 (manual pages 5–9, 11–24, 29–33, 35–39, 41–43). Pass mark is 80%, the same as
-your worksheets.
+Content right now: **285 practice questions, 162 flashcards, 194 study points** across
+Days 1–8 (manual pages 5–9, 11–24, 29–33, 35–39, 41–43, 45–46). Day 8 (accounting, credit
+cards, gift cards, comps, tip declaration, Joe's To-Go, evaluations) was built from the
+worksheet photos and the matching manual lesson pages — it wasn't one of the original seven
+applets. Pass mark is 80%, the same as your worksheets.
 
 ## Editing content
 
@@ -83,7 +85,7 @@ from the files rather than typed in, so it can't go stale.
 ### Re-check the whole site yourself (optional, catches the classic mistakes)
 
 If you want proof that a content edit didn't break anything, this runs the site headless and
-walks all 7 days — counters, every quiz question, flashcard flip, guide search, deep links:
+walks all 8 days — counters, every quiz question, flashcard flip, guide search, deep links:
 
 ```
 npm install jsdom        # one time, inside this folder
