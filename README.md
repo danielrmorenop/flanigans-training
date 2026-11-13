@@ -29,8 +29,8 @@ Tell your coworkers the link. You can also send them straight to one thing by pa
 
 - `…/#/day/4/quiz` — Day 4 practice quiz
 - `…/#/day/6/guide` — Day 6 study guide
-- `…/#/midterm/quiz` — the mixed 4-day Midterm (144 questions)
-- `…/#/exam/quiz` — the mixed 8-day Final Exam (285 questions)
+- `…/#/midterm/quiz` — the Midterm: 50 random qs drawn from Days 1–4
+- `…/#/exam/quiz` — the Final Exam: 60 random qs drawn from all 8 days
 
 ## What's inside
 
@@ -52,11 +52,14 @@ cards, gift cards, comps, tip declaration, Joe's To-Go, evaluations) was built f
 worksheet photos and the matching manual lesson pages — it wasn't one of the original seven
 applets. Pass mark is 80%, the same as your worksheets.
 
-Two mixed tests sit under the day cards: **Midterm** (Days 1–4: 144 quiz qs, 100 flashcards,
-102 study points) and **Final Exam** (all 8 days). Both have the same Quiz / Cards / Guide
-tabs as any day. Question AND answer order reshuffle on every attempt — and every quiz,
-every day and both exams, has a **Shuffle Quiz** button to re-mix mid-sitting. Flashcards
-keep their **Shuffle Deck** button.
+Two mixed tests sit under the day cards: **Midterm** (Days 1–4 pool: 144 quiz qs, 100
+flashcards, 102 study points) and **Final Exam** (all 8 days). Both have the same
+Quiz / Cards / Guide tabs as any day. **Each exam sitting draws a fresh random set — 50
+questions for the Midterm, 60 for the Final** — spread fairly across the days, so nobody
+sits a 144- or 285-question marathon and retaking feels like a new test. Change the draw
+size in `app.js` on the `EXAM_QS` line. Question AND answer order reshuffle on every
+attempt — and every quiz, every day and both exams, has a **Shuffle Quiz** button to
+re-mix mid-sitting. Flashcards keep their **Shuffle Deck** button.
 
 ## Editing content
 

@@ -8,19 +8,29 @@
   var DAY_NUMS = Object.keys(DAYS).map(Number).sort(function (a, b) { return a - b; });
   var PASS = 80;
 
-  /* mixed tests: midterm covers days 1–4, final covers everything */
+  /* mixed tests: midterm covers days 1–4, final covers everything.
+     each attempt draws EXAM_QS questions at random, spread fairly across the days */
   var EXAM_IDS = { exam: 1, midterm: 1 };
+  var EXAM_QS = { midterm: 50, exam: 60 };
   function examDays(id) {
     return id === 'midterm' ? DAY_NUMS.filter(function (n) { return n <= 4; }) : DAY_NUMS.slice();
   }
   function examBank(id) {
-    var all = [];
-    examDays(id).forEach(function (n) {
-      (DAYS[n].quiz || []).forEach(function (q) {
-        all.push({ cat: 'Day ' + n + ' — ' + q.cat, q: q.q, opts: q.opts, ans: q.ans, exp: q.exp });
-      });
+    var want = EXAM_QS[id] || Infinity;
+    // shuffle each day's questions, then take turns between days so one big day can't dominate
+    var pools = examDays(id).map(function (n) {
+      return shuffle((DAYS[n].quiz || []).map(function (q) {
+        return { cat: 'Day ' + n + ' — ' + q.cat, q: q.q, opts: q.opts, ans: q.ans, exp: q.exp };
+      }));
     });
-    return all;
+    var all = [], keep = true;
+    while (all.length < want && keep) {
+      keep = false;
+      for (var i = 0; i < pools.length && all.length < want; i++) {
+        if (pools[i].length) { all.push(pools[i].shift()); keep = true; }
+      }
+    }
+    return shuffle(all);
   }
   function cardsList(id) {
     if (!EXAM_IDS[id]) return (DAYS[id] && DAYS[id].cards) || [];
@@ -87,8 +97,8 @@
   }
   /* mixed tests: Midterm = Days 1–4, Final = every day */
   function labelOf(id) {
-    if (id === 'exam') return { num: 'FINAL', title: 'Final Practice Exam', pages: 'All 8 days mixed', blurb: 'Everything from Day 1 through Day 8 in one shuffled test' };
-    if (id === 'midterm') return { num: 'MIDTERM', title: 'Midterm Practice Exam', pages: 'Days 1–4 mixed', blurb: 'Everything from Day 1 through Day 4 in one shuffled test' };
+    if (id === 'exam') return { num: 'FINAL', title: 'Final Practice Exam', pages: 'All 8 days mixed', blurb: 'A fresh random ' + EXAM_QS.exam + '-question mix drawn from Day 1 through Day 8 — retake for a new draw' };
+    if (id === 'midterm') return { num: 'MIDTERM', title: 'Midterm Practice Exam', pages: 'Days 1–4 mixed', blurb: 'A fresh random ' + EXAM_QS.midterm + '-question mix drawn from Day 1 through Day 4 — retake for a new draw' };
     return DAYS[id];
   }
   function bankFor(id) {
@@ -188,7 +198,7 @@
             '<h3>Days 1 – 4 Mixed</h3>' +
             '<div class="pages">Midterm • Days 1 – 4</div>' +
             '<div class="blurb">' + esc(labelOf('midterm').blurb) + '</div>' +
-            '<div class="counts"><span class="count-chip">' + mc.quiz + ' quiz qs</span></div>' +
+            '<div class="counts"><span class="count-chip">' + Math.min(EXAM_QS.midterm, mc.quiz) + ' random qs drawn from ' + mc.quiz + '</span></div>' +
             '<div class="best' + (midBest === null ? ' no' : '') + '">' +
               (midBest === null ? 'No practice score yet' : 'Best practice score: ' + midBest + '%') +
             '</div>' +
@@ -198,7 +208,7 @@
             '<h3>All 8 Days Mixed</h3>' +
             '<div class="pages">Final • Days 1 – 8</div>' +
             '<div class="blurb">' + esc(labelOf('exam').blurb) + '</div>' +
-            '<div class="counts"><span class="count-chip">' + totalQ + ' quiz qs</span></div>' +
+            '<div class="counts"><span class="count-chip">' + Math.min(EXAM_QS.exam, totalQ) + ' random qs drawn from ' + totalQ + '</span></div>' +
             '<div class="best' + (examBest === null ? ' no' : '') + '">' +
               (examBest === null ? 'No practice score yet' : 'Best practice score: ' + examBest + '%') +
             '</div>' +
@@ -222,7 +232,7 @@
     return '<div class="day-strip">' +
       '<span class="num">' + (id === 'exam' ? 'FINAL' : id === 'midterm' ? 'MIDTERM' : 'DAY ' + id) + '</span>' +
       '<div class="t"><h2>' + esc(d.title) + '</h2>' +
-      '<div class="pages">' + esc(d.pages) + (c ? ' • ' + c.quiz + ' quiz qs • ' + c.cards + ' cards • ' + c.study + ' study points' : '') + '</div>' +
+      '<div class="pages">' + esc(d.pages) + (c ? ' • ' + (EXAM_IDS[id] ? Math.min(EXAM_QS[id], c.quiz) + ' random of ' + c.quiz + ' quiz qs' : c.quiz + ' quiz qs') + ' • ' + c.cards + ' cards • ' + c.study + ' study points' : '') + '</div>' +
       '</div></div>';
   }
 

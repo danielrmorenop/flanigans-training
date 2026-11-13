@@ -151,15 +151,51 @@ Object.entries(globalLetters).forEach(([k, v]) => {
   ok(pct >= 15 && pct <= 35, `letter ${k} carries ${pct.toFixed(1)}% of correct answers across all ${globalFourOpt} four-option questions`);
 });
 
-console.log('\n--- MIDTERM: Days 1–4 mixed');
+console.log('\n--- MIDTERM: Days 1–4 mixed (random draw)');
 const mid = nums.filter(n => n <= 4);
 const midQuiz = mid.reduce((s, n) => s + DAYS[n].quiz.length, 0);
 const midCards = mid.reduce((s, n) => s + DAYS[n].cards.length, 0);
 const midStudy = mid.reduce((s, n) => s + DAYS[n].sheet.reduce((a, g) => a + g.items.length, 0), 0);
+const MIDTERM_N = 50, FINAL_N = 60; // keep in sync with EXAM_QS in app.js
+const midDraw = Math.min(MIDTERM_N, midQuiz);
+const qDayMid = new Map(), qDayAll = new Map();
+mid.forEach(n => DAYS[n].quiz.forEach(q => qDayMid.set(q.q, n)));
+nums.forEach(n => DAYS[n].quiz.forEach(q => qDayAll.set(q.q, n)));
+
+// answer a whole exam sitting, collecting the question texts; ends on the results screen
+const runExamSitting = async (n, dayMap) => {
+  const seen = [];
+  for (let i = 0; i < n; i++) {
+    const opts = [...d.querySelectorAll('[data-pick]')];
+    if (!opts.length) { fails++; console.log('  FAIL  exam sitting ran out at question ' + (i + 1)); return seen; }
+    const qText = d.querySelector('.q-text').textContent.trim();
+    seen.push(qText);
+    const src = DAYS[dayMap.get(qText)]?.quiz.find(q => q.q === qText);
+    if (!src) { fails++; console.log('  FAIL  exam question not in pool: ' + qText.slice(0, 60)); return seen; }
+    const want = src.opts[src.ans];
+    const idx = opts.findIndex(o => o.textContent.trim().endsWith(want.trim()));
+    if (idx === -1) { fails++; console.log('  FAIL  exam: correct option missing for: ' + qText.slice(0, 60)); return seen; }
+    click(opts[idx]); await wait(4);
+    click(d.querySelector('#q-next')); await wait(4);
+  }
+  return seen;
+};
+
 await navTo('#/midterm/quiz');
-ok(txt('#q-count') === `Question 1 of ${midQuiz}`, `midterm quiz counter 1 of ${midQuiz} (got "${txt('#q-count')}")`);
+ok(txt('#q-count') === `Question 1 of ${midDraw}`, `midterm draws ${midDraw} random qs from a pool of ${midQuiz} (got "${txt('#q-count')}")`);
 click(d.querySelector('#q-shuffle')); await wait(20);
-ok(txt('#q-count') === `Question 1 of ${midQuiz}`, 'Shuffle Quiz restarts the midterm at question 1');
+ok(txt('#q-count') === `Question 1 of ${midDraw}`, 'Shuffle Quiz draws a fresh set and restarts at question 1');
+const drawA = await runExamSitting(midDraw, qDayMid);
+ok(drawA.length === midDraw, `midterm draw A is exactly ${midDraw} questions`);
+const covA = new Set(drawA.map(t => qDayMid.get(t)));
+ok(covA.size === mid.length, `draw A covers every mixed day (saw days ${[...covA].sort().join(',')})`);
+ok(/100%/.test(d.querySelector('.results')?.textContent || ''), 'midterm draw A perfect run scores 100%');
+click(d.querySelector('[data-retake]')); await wait(30);
+ok(txt('#q-count') === `Question 1 of ${midDraw}`, 'midterm retake restarts at question 1 with a new draw');
+const drawB = await runExamSitting(midDraw, qDayMid);
+ok(drawA.join('|') !== drawB.join('|'), 'retake sat B is a different draw and order than sat A');
+const overlap = drawB.filter(t => drawA.includes(t)).length;
+ok(overlap > 0 && overlap < midDraw, `retake draw shares only part of the old draw (${overlap}/${midDraw} repeated — expected ≈ ${Math.round(midDraw * midDraw / midQuiz)})`);
 await navTo('#/midterm/cards');
 ok(txt('#c-count') === `Card 1 of ${midCards}`, `midterm flashcards aggregate Days 1–4: ${midCards} (got "${txt('#c-count')}")`);
 await navTo('#/midterm/guide');
@@ -167,7 +203,12 @@ ok(d.querySelectorAll('.sheet-item').length === midStudy, `midterm study guide a
 
 console.log('\n--- FINAL EXAM');
 await navTo('#/exam/quiz');
-ok(txt('#q-count') === `Question 1 of ${totalQuiz}`, `exam counter says 1 of ${totalQuiz} (got "${txt('#q-count')}")`);
+const finalDraw = Math.min(FINAL_N, totalQuiz);
+ok(txt('#q-count') === `Question 1 of ${finalDraw}`, `final exam draws ${finalDraw} random qs from a pool of ${totalQuiz} (got "${txt('#q-count')}")`);
+const drawC = await runExamSitting(finalDraw, qDayAll);
+ok(drawC.length === finalDraw, `final draw is exactly ${finalDraw} questions`);
+const covC = new Set(drawC.map(t => qDayAll.get(t)));
+ok(covC.size === nums.length, `final draw covers all ${nums.length} days (saw days ${[...covC].sort().join(',')})`);
 await navTo('#/exam/cards');
 const totalCards = nums.reduce((s, n) => s + DAYS[n].cards.length, 0);
 const totalStudy = nums.reduce((s, n) => s + DAYS[n].sheet.reduce((a, g) => a + g.items.length, 0), 0);
